@@ -17,6 +17,18 @@
 	<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
 		<TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
 		<Button Content="Hello Dasha" HorizontalAlignment="Center" Command="{Binding OnClick}"/>
+		<ListBox Classes="movies"
+	 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+	 Items="{Binding MyItems}">
+			<ListBox.ItemTemplate>
+				<DataTemplate>
+					<Grid>
+						<TextBlock FontSize="18" Text="{Binding Title}" />
+					</Grid>
+				</DataTemplate>
+			</ListBox.ItemTemplate>
+		</ListBox>
 	</StackPanel>
+
 
 </Window>
