@@ -3,6 +3,8 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using AvaloniaCallCenter.ViewModels;
 using AvaloniaCallCenter.Views;
+using ReactiveUI;
+using Splat;
 
 namespace AvaloniaCallCenter
 {
@@ -15,13 +17,13 @@ namespace AvaloniaCallCenter
 
         public override void OnFrameworkInitializationCompleted()
         {
-            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-            {
-                desktop.MainWindow = new MainWindow
-                {
-                    DataContext = new MainWindowViewModel(),
-                };
-            }
+            // Регистрируем модели представления.
+            Locator.CurrentMutable.RegisterConstant<IScreen>(new MainWindowViewModel());
+            Locator.CurrentMutable.Register<IViewFor<HomeViewModel>>(() => new HomeView());
+            Locator.CurrentMutable.Register<IViewFor<AuthorizationWindowViewModel>>(() => new AuthorizationWindowView());
+
+            // Получаем корневую модель представления и инициализируем контекст данных.
+            new MainWindow { DataContext = Locator.Current.GetService<IScreen>() }.Show();
 
             base.OnFrameworkInitializationCompleted();
         }

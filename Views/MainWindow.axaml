@@ -4,31 +4,17 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+		xmlns:reactiveUi="http://reactiveui.net"
         x:Class="AvaloniaCallCenter.Views.MainWindow"
         Icon="/Assets/avalonia-logo.ico"
         Title="AvaloniaCallCenter">
-
-    <Design.DataContext>
-        <vm:MainWindowViewModel/>
-    </Design.DataContext>
-
-   
-
-	<StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-		<TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-		<Button Content="Hello Dasha" HorizontalAlignment="Center" Command="{Binding OnClick}"/>
-		<ListBox Classes="movies"
-	 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-	 Items="{Binding MyItems}">
-			<ListBox.ItemTemplate>
-				<DataTemplate>
-					<Grid>
-						<TextBlock FontSize="18" Text="{Binding Title}" />
-					</Grid>
-				</DataTemplate>
-			</ListBox.ItemTemplate>
-		</ListBox>
-	</StackPanel>
-
-
+	<Grid>
+		<!-- Элемент управления, наблюдающий за RoutingState, 
+             встраивающий подходящее View текущей ViewModel  -->
+		<reactiveUi:RoutedViewHost Grid.Row="0" Router="{Binding Router}">
+			<reactiveUi:RoutedViewHost.DefaultContent>
+				<TextBlock Text="Default Content" />
+			</reactiveUi:RoutedViewHost.DefaultContent>
+		</reactiveUi:RoutedViewHost>
+	</Grid>
 </Window>
