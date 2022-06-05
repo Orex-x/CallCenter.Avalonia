@@ -18,6 +18,7 @@ namespace AvaloniaCallCenter.ViewModels
     public class AuthorizationWindowViewModel : ReactiveObject, IRoutableViewModel
     {
         public ICommand OnClickLogIn { get; private set; }
+        public ICommand OnClickGoToRegistration { get; private set; }
         private string _password;
         private string _login;
         private string _title = "Authorization";
@@ -49,6 +50,12 @@ namespace AvaloniaCallCenter.ViewModels
                         Container.GoToHome();
                 }
             }, canLogin);
+
+            OnClickGoToRegistration = ReactiveCommand.Create(() =>
+            {
+                if (Container != null)
+                    Container.GoToRegistartion();
+            });
         }
 
         public IScreen HostScreen { get; }

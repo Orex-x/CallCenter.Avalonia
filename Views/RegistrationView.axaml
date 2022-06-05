@@ -1,0 +1,105 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="AvaloniaCallCenter.Views.RegistrationView">
+	<Grid>
+		<TextBlock TextAlignment="Center" FontSize="24" Text="Registration" Margin="0,50,0,0"/>
+
+		<Grid>
+			<Grid.RowDefinitions>
+				<RowDefinition/>
+				<RowDefinition Height="100"/>
+			</Grid.RowDefinitions>
+			<Grid Margin="0,100,0,0" HorizontalAlignment="Center" VerticalAlignment="Center">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="1*"/>
+					<ColumnDefinition Width="1*"/>
+				</Grid.ColumnDefinitions>
+
+				<Grid Grid.Column="0" Margin="0,0,10,0">
+					<Grid.RowDefinitions>
+						<RowDefinition Height="10"/>
+						<RowDefinition Height="10"/>
+						<RowDefinition Height="10"/>
+						<RowDefinition/>
+					</Grid.RowDefinitions>
+
+					<TextBox
+						Watermark="Name"
+						Text="{Binding Name}"
+						Margin="0,30,0,0"
+						Width="200"
+						Grid.Row="0"/>
+					<TextBox
+						Watermark="Surname"
+						Text="{Binding Surname}"
+						Margin="0,30,0,0"
+						Width="200"
+						Grid.Row="1"/>
+					<TextBox
+						Watermark="Lastname"
+						Text="{Binding Lastname}"
+						Margin="0,30,0,0"
+						Width="200"
+						Grid.Row="2"/>
+
+				</Grid>
+				<Grid Grid.Column="1" Margin="10,0,0,0">
+					<Grid.RowDefinitions>
+						<RowDefinition Height="10"/>
+						<RowDefinition Height="10"/>
+						<RowDefinition Height="10"/>
+						<RowDefinition/>
+					</Grid.RowDefinitions>
+
+					<TextBox
+						Watermark="Login"
+						Text="{Binding Login}"
+						Margin="0,30,0,0"
+						Width="200"
+						Grid.Row="0"/>
+
+					<TextBox PasswordChar="*"
+							 Watermark="Password"
+							 Width="200"
+							 Text="{Binding Password}"
+							 Margin="0,30,0,0"
+							 Grid.Row="1"/>
+
+					<TextBox PasswordChar="*"
+							 Watermark="Confirm password"
+							 Width="200"
+							 Text="{Binding ConfirmPassword}"
+							 Margin="0,30,0,0"
+							 Grid.Row="2"/>
+
+				</Grid>
+			</Grid>
+
+			<Grid Grid.Row="1" VerticalAlignment="Top">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="50"/>
+					<RowDefinition Height="50"/>
+				</Grid.RowDefinitions>
+				
+				<Button Content="Back" 
+						Grid.Row="1"
+						Width="420"
+						HorizontalAlignment="Center"
+						HorizontalContentAlignment="Center"
+						Command="{Binding OnClickBack}"/>
+				
+				<Button Content="Registration"
+						Grid.Row="0" 
+						Width="420"
+						Margin="0,20,0,0"
+						HorizontalAlignment="Center"
+						HorizontalContentAlignment="Center"
+						Command="{Binding OnClickRegistration}"/>
+			</Grid>
+
+		</Grid>
+	</Grid>
+</UserControl>

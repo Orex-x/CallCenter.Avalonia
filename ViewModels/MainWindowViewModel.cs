@@ -20,6 +20,8 @@ namespace AvaloniaCallCenter.ViewModels
     public interface IWindowContainer
     {
         public void GoToHome();
+        public void GoToRegistartion();
+        public void GoToAuthorization();
        
     }
 
@@ -31,11 +33,6 @@ namespace AvaloniaCallCenter.ViewModels
 
         public MainWindowViewModel()
         {
-
-/*            var canLogin = this
-           .WhenAnyObservable(x => x.Router.CurrentViewModel)
-           .Select(current => !(current is AuthorizationWindowViewModel));*/
-
             Router.Navigate.Execute(new AuthorizationWindowViewModel(this));
         }
 
@@ -46,9 +43,20 @@ namespace AvaloniaCallCenter.ViewModels
             set => this.RaiseAndSetIfChanged(ref _router, value);
         }
 
+        
         public void GoToHome()
         {
             Router.Navigate.Execute(new HomeViewModel());
+        }
+
+        public void GoToRegistartion()
+        {
+            Router.Navigate.Execute(new RegistrationViewModel(this));
+        }
+
+        public void GoToAuthorization()
+        {
+            Router.Navigate.Execute(new AuthorizationWindowViewModel(this));
         }
     }
 
