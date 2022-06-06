@@ -22,6 +22,7 @@ namespace AvaloniaCallCenter
             Locator.CurrentMutable.Register<IViewFor<HomeViewModel>>(() => new HomeView());
             Locator.CurrentMutable.Register<IViewFor<AuthorizationWindowViewModel>>(() => new AuthorizationWindowView());
             Locator.CurrentMutable.Register<IViewFor<RegistrationViewModel>>(() => new RegistrationView());
+            Locator.CurrentMutable.Register<IViewFor<ClientDetailsViewModel>>(() => new ClientDetailsView());
 
             // Получаем корневую модель представления и инициализируем контекст данных.
             new MainWindow { DataContext = Locator.Current.GetService<IScreen>() }.Show();

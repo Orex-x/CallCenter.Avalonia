@@ -8,12 +8,10 @@ using System.Threading.Tasks;
 namespace AvaloniaCallCenter.Models
 {
 
-    [DataContract]
-    [Serializable]
-    public class RegistrationModel
+    public class User
     {
-        public string Name { get; set; }
-        public string Login { get; set; }
-        public string Password { get; set; }
+        public string name { get; set; }
+        public string login { get; set; }
+        public string password { get; set; }
     }
 }

@@ -6,8 +6,9 @@ using System.Threading.Tasks;
 
 namespace AvaloniaCallCenter.Models
 {
-    public class Calls
+    public class Call
     {
+        public int Id { get; set; }
         public string Number { get; set; }
         public string Name { get; set; }
         public long Date { get; set; }

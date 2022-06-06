@@ -1,13 +1,12 @@
 ﻿using AvaloniaCallCenter.Models;
 using Microsoft.AspNetCore.SignalR.Client;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace AvaloniaCallCenter.Services
@@ -22,12 +21,58 @@ namespace AvaloniaCallCenter.Services
             public static string PUT = "PUT";
         }
 
-        private const string host = "https://948f-62-217-190-128.ngrok.io";
+        private const string host = "https://0106-62-217-190-128.ngrok.io";
 
         private static HubConnection connection;
         private static string _token;
+        private static User _user;
 
-        public static object MessageBox { get; private set; }
+        public static HubConnection GetConnection()
+        {
+            if (connection == null)
+            {
+                connection = new HubConnectionBuilder()
+               .WithUrl($"{host}/ChatHub", options =>
+               {
+                   options.AccessTokenProvider = () => Task.FromResult(_token);
+               })
+               .WithAutomaticReconnect()
+               .Build();
+
+                connection.Closed += error =>
+                {
+                    Debug.Assert(connection.State == HubConnectionState.Disconnected);
+                    // MessageBox.Show("connection has been closed or manually try to restart the connection");
+                    // Notify users the connection has been closed or manually try to restart the connection.
+                    return Task.CompletedTask;
+                };
+
+                connection.Reconnecting += error =>
+                {
+                    Debug.Assert(connection.State == HubConnectionState.Reconnecting);
+                    // MessageBox.Show("connection was lost");
+                    // Notify users the connection was lost and the client is reconnecting.
+                    // Start queuing or dropping messages.
+
+                    return Task.CompletedTask;
+                };
+
+                connection.Reconnected += connectionId =>
+                {
+                    Debug.Assert(connection.State == HubConnectionState.Connected);
+                    //MessageBox.Show("connection was reestablished");
+                    // Notify users the connection was reestablished.
+                    // Start dequeuing messages queued while reconnecting if any.
+
+                    return Task.CompletedTask;
+                };
+
+
+            }
+            return connection;
+        }
+
+      
 
         public static string sendRequest(string body, string uri, string method)
         {
@@ -66,15 +111,23 @@ namespace AvaloniaCallCenter.Services
             }
         }
 
-        public static bool authServer(string login, string password)
+
+        public static List<Client> getAllClients()
+        {
+            var response = sendRequest("", $"{host}/api/data/GetAllClients", Method.POST);
+
+            var clients = JsonConvert.DeserializeObject<List<Client>>(response);
+
+            return clients;
+        }
+         
+        public static bool addClient(Client client)
         {
             try
             {
-                var response = sendRequest("",
-                    $"{host}/api/account/token?login={login}&password={password}",
+                string json = JsonConvert.SerializeObject(client);
+                var response = sendRequest(json, $"{host}/api/data/CreateClient",
                     Method.POST);
-                JObject obj = JObject.Parse(response);
-                _token = (string)obj["access_token"];
                 return true;
             }
             catch (Exception ex)
@@ -84,15 +137,71 @@ namespace AvaloniaCallCenter.Services
             return false;
         }
 
-        public static bool sendRegistration(RegistrationModel model)
+
+        public static bool updateClient(Client client)
         {
             try
             {
-                string json = JsonSerializer.Serialize(model);
+                string json = JsonConvert.SerializeObject(client);
+                var response = sendRequest(json, $"{host}/api/data/UpdateClient",
+                    Method.POST);
+                return true;
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return false;
+        }
+
+
+        public static bool authServer(string login, string password)
+        {
+            try
+            {
+                var response = sendRequest("",
+                    $"{host}/api/account/token?login={login}&password={password}",
+                    Method.POST);
+                JObject obj = JObject.Parse(response);
+                _token = (string)obj["access_token"];
+                GetConnection();
+                return true;
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return false;
+        }
+
+
+        public static bool addEvent(int idClient, Event @event)
+        {
+            try
+            {
+                string json = JsonConvert.SerializeObject(@event);
+                var response = sendRequest(json,
+                    $"{host}/api/data/AddEvent?idClient={idClient}",
+                    Method.POST);
+                return true;
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return false;
+        }
+
+        public static bool sendRegistration(User model)
+        {
+            try
+            {
+                string json = JsonConvert.SerializeObject(model);
                 var response = sendRequest(json, $"{host}/api/account/Registration",
                     Method.POST);
                 JObject obj = JObject.Parse(response);
                 _token = (string)obj["access_token"];
+                GetConnection();
                 return true;
             }
             catch (Exception ex)
@@ -108,54 +217,29 @@ namespace AvaloniaCallCenter.Services
             var response = sendRequest("", $"{host}/api/account/GetAllConnection",
                     Method.POST);
 
-            var connectionList = JsonSerializer.Deserialize<List<Connection>>(response);
+
+            var connectionList = JsonConvert.DeserializeObject<List<Connection>>(response);
 
             return connectionList;
         }
 
-        public static HubConnection GetConnection()
+        public static User getUser()
         {
-            if (connection == null)
+            if(_user == null && _token != null)
             {
-                connection = new HubConnectionBuilder()
-               .WithUrl($"{host}/ChatHub", options =>
-               {
-                   options.AccessTokenProvider = () => Task.FromResult(_token);
-               })
-               .WithAutomaticReconnect()
-               .Build();
+                var response = sendRequest("", $"{host}/api/account/GetRegistrationModel",
+                   Method.POST);
 
-
-
-                connection.Closed += error =>
-                {
-                    Debug.Assert(connection.State == HubConnectionState.Disconnected);
-                   // MessageBox.Show("connection has been closed or manually try to restart the connection");
-                    // Notify users the connection has been closed or manually try to restart the connection.
-                    return Task.CompletedTask;
-                };
-
-                connection.Reconnecting += error =>
-                {
-                    Debug.Assert(connection.State == HubConnectionState.Reconnecting);
-                   // MessageBox.Show("connection was lost");
-                    // Notify users the connection was lost and the client is reconnecting.
-                    // Start queuing or dropping messages.
-
-                    return Task.CompletedTask;
-                };
-
-                connection.Reconnected += connectionId =>
-                {
-                    Debug.Assert(connection.State == HubConnectionState.Connected);
-                    //MessageBox.Show("connection was reestablished");
-                    // Notify users the connection was reestablished.
-                    // Start dequeuing messages queued while reconnecting if any.
-
-                    return Task.CompletedTask;
-                };
+                _user = JsonConvert.DeserializeObject<User>(response);
             }
-            return connection;
+            return _user;
+        }
+
+        public static void setUserAndConnectionNull()
+        {
+            _user = null;
+            connection.StopAsync();
+            connection = null;
         }
     }
 }

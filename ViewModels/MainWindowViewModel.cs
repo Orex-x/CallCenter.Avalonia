@@ -22,14 +22,18 @@ namespace AvaloniaCallCenter.ViewModels
         public void GoToHome();
         public void GoToRegistartion();
         public void GoToAuthorization();
+        public void GoToClientDetails(Client client);
+        public void GoBack();
        
     }
 
+   
 
     [DataContract]
     public class MainWindowViewModel : ReactiveObject, IScreen, IWindowContainer
     {
         private RoutingState _router = new RoutingState();
+
 
         public MainWindowViewModel()
         {
@@ -46,7 +50,7 @@ namespace AvaloniaCallCenter.ViewModels
         
         public void GoToHome()
         {
-            Router.Navigate.Execute(new HomeViewModel());
+            Router.Navigate.Execute(new HomeViewModel(this));
         }
 
         public void GoToRegistartion()
@@ -57,6 +61,16 @@ namespace AvaloniaCallCenter.ViewModels
         public void GoToAuthorization()
         {
             Router.Navigate.Execute(new AuthorizationWindowViewModel(this));
+        }
+
+        public void GoToClientDetails(Client client)
+        {
+            Router.Navigate.Execute(new ClientDetailsViewModel(this, client));
+        }
+
+        void IWindowContainer.GoBack()
+        {
+            Router.NavigateBack.Execute();
         }
     }
 
