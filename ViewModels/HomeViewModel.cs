@@ -26,7 +26,6 @@ namespace AvaloniaCallCenter.ViewModels
         public ICommand OnClickConnect { get; private set; }
         public ICommand OnClickSendMessage { get; private set; }
         public ICommand OnClickGetAllCalls { get; private set; }
-        public ICommand OnClickAddContact { get; private set; }
         public ICommand OnClickCall { get; private set; }
         public ICommand OnClickLogout { get; private set; }
         public ICommand OnClickClientDetails { get; private set; }
@@ -50,8 +49,9 @@ namespace AvaloniaCallCenter.ViewModels
 
         
         private string _message;
-        private string _contact_name;
+     /*   private string _contact_name;
         private string _contact_phone;
+        private string _contact_status;*/
         private Client _selected_client;
 
         private ObservableCollection<Message> _myItems = new ObservableCollection<Message>();
@@ -77,17 +77,25 @@ namespace AvaloniaCallCenter.ViewModels
         }
 
 
-        public string ContactName
+      /*  public string ContactName
         {
             get => _contact_name;
             set => this.RaiseAndSetIfChanged(ref _contact_name, value);
-        }
+        }*/
 
-        public string ContactPhone
+        /*public string ContactPhone
         {
             get => _contact_phone;
             set => this.RaiseAndSetIfChanged(ref _contact_phone, value);
-        }
+        }*/
+
+
+      /*  public string ContactStatus
+        {
+            get => _contact_status;
+            set => this.RaiseAndSetIfChanged(ref _contact_status, value);
+        }*/
+
 
         public string AccountName
         {
@@ -170,10 +178,6 @@ namespace AvaloniaCallCenter.ViewModels
                 GetAllCalls();
             });
 
-            OnClickAddContact = ReactiveCommand.Create(() =>
-            {
-                Clients.Add(new Client { Name = ContactName, Phone = ContactPhone });
-            });
 
             OnClickClientDetails = ReactiveCommand.Create(() =>
             {

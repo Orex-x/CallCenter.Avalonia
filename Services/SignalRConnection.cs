@@ -21,7 +21,7 @@ namespace AvaloniaCallCenter.Services
             public static string PUT = "PUT";
         }
 
-        private const string host = "https://0106-62-217-190-128.ngrok.io";
+        private const string host = "https://2032-2a00-1fa0-292-7a43-2805-21b6-f284-6684.ngrok.io";
 
         private static HubConnection connection;
         private static string _token;
@@ -154,6 +154,41 @@ namespace AvaloniaCallCenter.Services
             return false;
         }
 
+
+        public static bool deleteClient(int idClient)
+        {
+            try
+            {
+                var response = sendRequest("",
+                    $"{host}/api/data/DeleteClient?id={idClient}",
+                    Method.POST);
+              
+                return true;
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return false;
+        }
+
+
+        public static bool deleteEvent(int idClient, int idEvent)
+        {
+            try
+            {
+                var response = sendRequest("",
+                    $"{host}/api/data/DeleteEvent?idClient={idClient}&idEvent={idEvent}",
+                    Method.POST);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return false;
+        }
 
         public static bool authServer(string login, string password)
         {

@@ -131,12 +131,18 @@ namespace AvaloniaCallCenter.ViewModels
 
             OnClickDeleteClient = ReactiveCommand.Create(() =>
             {
-
+                if(_client != null)
+                {
+                    var result = SignalRConnection.deleteClient(_client.Id);
+                    if (result)
+                    {
+                        container.GoToHome();
+                    }
+                }
             });
 
             OnClickAddEvent = ReactiveCommand.Create(() =>
             {
-
                 DateTime date = ((DateTimeOffset)SelectedEventDate).DateTime;
                 TimeSpan time = ((TimeSpan)SelectedEventTime);
                 DateTime EventDateTime = new DateTime(date.Year, date.Month, date.Day, time.Hours, time.Minutes, time.Seconds);
@@ -157,7 +163,17 @@ namespace AvaloniaCallCenter.ViewModels
 
             OnClickDeleteEvent = ReactiveCommand.Create(() =>
             {
-
+                if (_client != null && SelectedEvent.Id != 0)
+                {
+                    var result = SignalRConnection.deleteEvent(_client.Id, SelectedEvent.Id);
+                    if (result)
+                    {
+                        Events.Remove(SelectedEvent);
+                    }
+                }else if(SelectedEvent != null)
+                {
+                    Events.Remove(SelectedEvent);
+                }
             });
 
             #endregion

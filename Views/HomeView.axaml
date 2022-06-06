@@ -66,6 +66,7 @@
 								</Grid.ColumnDefinitions>
 								<TextBlock Grid.Column="0" FontSize="18" Text="{Binding Name}" />
 								<TextBlock Grid.Column="1" FontSize="18" Text="{Binding Phone}" />
+								<TextBlock Grid.Column="1" FontSize="18" Text="{Binding Status}" />
 							</Grid>
 						</DataTemplate>
 					</ListBox.ItemTemplate>
@@ -162,14 +163,39 @@
 							Grid.Column="1"/>
 
 					</Grid>
-					
 				</Grid>
 			</Grid>	
 		</TabItem>
 
+		<TabItem Header="History" VerticalContentAlignment="Center">
+			<Grid Margin="10,10,10,10">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="1*"/>
+					<ColumnDefinition Width="3*"/>
+				</Grid.ColumnDefinitions>
+
+				<ListBox  Grid.Column="2" Margin="10,10,10,10" Items="{Binding Connections}">
+					<ListBox.ItemTemplate>
+						<DataTemplate>
+							<Grid>
+								<Grid.RowDefinitions>
+									<RowDefinition/>
+									<RowDefinition/>
+									<RowDefinition/>
+								</Grid.RowDefinitions>
+							</Grid>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+				</ListBox>
+				
+				
+			</Grid>
+		</TabItem>
+
 		<TabItem Header="Sessions" VerticalContentAlignment="Center">
 			<Grid>
-				<ListBox  Grid.Column="2" Margin="10,10,10,10" Classes="movies" Items="{Binding Connections}">
+				
+				<ListBox  Grid.Column="2" Margin="10,10,10,10" Items="{Binding Connections}">
 					<ListBox.ItemTemplate>
 						<DataTemplate>
 							<Grid>
