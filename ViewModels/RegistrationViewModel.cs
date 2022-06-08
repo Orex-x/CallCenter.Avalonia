@@ -74,7 +74,7 @@ namespace AvaloniaCallCenter.ViewModels
                     (pass, con_pass) => pass == con_pass);
 
 
-            OnClickRegistration = ReactiveCommand.Create(() =>
+            OnClickRegistration = ReactiveCommand.Create(async () =>
             {
                 User user = new User
                 {
@@ -83,7 +83,7 @@ namespace AvaloniaCallCenter.ViewModels
                     name = Name
                 };
 
-                bool ok = SignalRConnection.sendRegistration(user);
+                bool ok = await SignalRConnection.sendRegistrationAsync(user);
                 if (ok)
                 {
                     if (container != null)

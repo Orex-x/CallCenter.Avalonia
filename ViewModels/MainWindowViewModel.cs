@@ -24,7 +24,6 @@ namespace AvaloniaCallCenter.ViewModels
         public void GoToAuthorization();
         public void GoToClientDetails(Client client);
         public void GoBack();
-       
     }
 
    

@@ -40,9 +40,10 @@ namespace AvaloniaCallCenter.ViewModels
 
             // Привязанные к команде кнопки будут выключены, пока
             // пользовательский ввод не завершён.
-            OnClickLogIn = ReactiveCommand.Create(() =>
+            OnClickLogIn = ReactiveCommand.Create(async () =>
             {
-                bool ok = SignalRConnection.authServer(Login, Password);
+                bool ok = await SignalRConnection.authServerAsync(Login, Password);
+
                 Title = ok ? "Login secuess" : "Login failed";
                 if (ok)
                 {

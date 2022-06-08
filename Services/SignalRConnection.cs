@@ -21,7 +21,7 @@ namespace AvaloniaCallCenter.Services
             public static string PUT = "PUT";
         }
 
-        private const string host = "https://2032-2a00-1fa0-292-7a43-2805-21b6-f284-6684.ngrok.io";
+        private const string host = "https://2d80-62-217-190-128.ngrok.io";
 
         private static HubConnection connection;
         private static string _token;
@@ -72,9 +72,45 @@ namespace AvaloniaCallCenter.Services
             return connection;
         }
 
-      
 
-        public static string sendRequest(string body, string uri, string method)
+
+        public static async Task<string> sendRequestAsync(string body, string uri, string method)
+        {
+            try
+            {
+                var request = WebRequest.Create(uri);
+                request.ContentType = "application/json; charset=utf-8";
+                request.Method = method;
+                if (_token != null)
+                    request.Headers.Add("Authorization", _token);
+
+                if (body.Length > 0)
+                {
+                    using (var streamWriter = new StreamWriter(request.GetRequestStream()))
+                    {
+                        streamWriter.Write(body);
+                        streamWriter.Flush();
+                    }
+                }
+
+                var response = (HttpWebResponse)await Task.Factory
+                    .FromAsync<WebResponse>(request.BeginGetResponse,
+                                            request.EndGetResponse,
+                                            null);
+
+                using (var streamReader = new StreamReader(response.GetResponseStream()))
+                {
+                    var result = streamReader.ReadToEnd();
+                    return result;
+                }
+            }
+            catch (Exception ee)
+            {
+                return ee.ToString();
+            }
+        }
+
+        public static  string sendRequest(string body, string uri, string method)
         {
             try
             {
@@ -112,21 +148,21 @@ namespace AvaloniaCallCenter.Services
         }
 
 
-        public static List<Client> getAllClients()
+        public async static Task<List<Client>> getAllClientsAsync()
         {
-            var response = sendRequest("", $"{host}/api/data/GetAllClients", Method.POST);
+            var response = await sendRequestAsync("", $"{host}/api/data/GetAllClients", Method.POST);
 
             var clients = JsonConvert.DeserializeObject<List<Client>>(response);
 
             return clients;
         }
          
-        public static bool addClient(Client client)
+        public async static Task<bool> addClientAsync(Client client)
         {
             try
             {
                 string json = JsonConvert.SerializeObject(client);
-                var response = sendRequest(json, $"{host}/api/data/CreateClient",
+                var response = await sendRequestAsync(json, $"{host}/api/data/CreateClient",
                     Method.POST);
                 return true;
             }
@@ -138,12 +174,12 @@ namespace AvaloniaCallCenter.Services
         }
 
 
-        public static bool updateClient(Client client)
+        public async static Task<bool> updateClientAsync(Client client)
         {
             try
             {
                 string json = JsonConvert.SerializeObject(client);
-                var response = sendRequest(json, $"{host}/api/data/UpdateClient",
+                var response = await sendRequestAsync(json, $"{host}/api/data/UpdateClient",
                     Method.POST);
                 return true;
             }
@@ -155,11 +191,11 @@ namespace AvaloniaCallCenter.Services
         }
 
 
-        public static bool deleteClient(int idClient)
+        public async static Task<bool> deleteClientAsync(int idClient)
         {
             try
             {
-                var response = sendRequest("",
+                var response = await sendRequestAsync("",
                     $"{host}/api/data/DeleteClient?id={idClient}",
                     Method.POST);
               
@@ -173,11 +209,11 @@ namespace AvaloniaCallCenter.Services
         }
 
 
-        public static bool deleteEvent(int idClient, int idEvent)
+        public async static Task<bool> deleteEventAsync(int idClient, int idEvent)
         {
             try
             {
-                var response = sendRequest("",
+                var response = await sendRequestAsync("",
                     $"{host}/api/data/DeleteEvent?idClient={idClient}&idEvent={idEvent}",
                     Method.POST);
 
@@ -190,11 +226,11 @@ namespace AvaloniaCallCenter.Services
             return false;
         }
 
-        public static bool authServer(string login, string password)
+        public async static Task<bool> authServerAsync(string login, string password)
         {
             try
             {
-                var response = sendRequest("",
+                var response = await sendRequestAsync("", 
                     $"{host}/api/account/token?login={login}&password={password}",
                     Method.POST);
                 JObject obj = JObject.Parse(response);
@@ -210,12 +246,12 @@ namespace AvaloniaCallCenter.Services
         }
 
 
-        public static bool addEvent(int idClient, Event @event)
+        public async static Task<bool> addEventAsync(int idClient, Event @event)
         {
             try
             {
                 string json = JsonConvert.SerializeObject(@event);
-                var response = sendRequest(json,
+                var response = await sendRequestAsync(json,
                     $"{host}/api/data/AddEvent?idClient={idClient}",
                     Method.POST);
                 return true;
@@ -227,12 +263,12 @@ namespace AvaloniaCallCenter.Services
             return false;
         }
 
-        public static bool sendRegistration(User model)
+        public async static Task<bool> sendRegistrationAsync(User model)
         {
             try
             {
                 string json = JsonConvert.SerializeObject(model);
-                var response = sendRequest(json, $"{host}/api/account/Registration",
+                var response = await sendRequestAsync(json, $"{host}/api/account/Registration",
                     Method.POST);
                 JObject obj = JObject.Parse(response);
                 _token = (string)obj["access_token"];
@@ -246,23 +282,22 @@ namespace AvaloniaCallCenter.Services
             return false;
         }
 
-        public static List<Connection> getAllConnection()
+        public async static Task<List<Connection>> getAllConnectionAsync()
         {
            
-            var response = sendRequest("", $"{host}/api/account/GetAllConnection",
+            var response = await sendRequestAsync("", $"{host}/api/account/GetAllConnection",
                     Method.POST);
-
 
             var connectionList = JsonConvert.DeserializeObject<List<Connection>>(response);
 
             return connectionList;
         }
 
-        public static User getUser()
+        public async static Task<User> getUserAsync()
         {
             if(_user == null && _token != null)
             {
-                var response = sendRequest("", $"{host}/api/account/GetRegistrationModel",
+                var response = await sendRequestAsync("", $"{host}/api/account/GetRegistrationModel",
                    Method.POST);
 
                 _user = JsonConvert.DeserializeObject<User>(response);
@@ -272,9 +307,13 @@ namespace AvaloniaCallCenter.Services
 
         public static void setUserAndConnectionNull()
         {
-            _user = null;
-            connection.StopAsync();
-            connection = null;
+            if(_user != null)
+                _user = null;
+            if (connection != null)
+            {
+                connection.StopAsync();
+                connection = null;
+            }
         }
     }
 }

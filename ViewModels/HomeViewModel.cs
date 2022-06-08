@@ -23,13 +23,13 @@ namespace AvaloniaCallCenter.ViewModels
 
 
         #region ICommand
-        public ICommand OnClickConnect { get; private set; }
         public ICommand OnClickSendMessage { get; private set; }
         public ICommand OnClickGetAllCalls { get; private set; }
         public ICommand OnClickCall { get; private set; }
         public ICommand OnClickLogout { get; private set; }
         public ICommand OnClickClientDetails { get; private set; }
         public ICommand OnClickClientAdd { get; private set; }
+        public ICommand OnClickSelectedCall { get; private set; }
 
         #endregion
 
@@ -46,15 +46,16 @@ namespace AvaloniaCallCenter.ViewModels
 
         HubConnection connection;
         private string _title = "Authorization";
-
         
         private string _message;
-     /*   private string _contact_name;
-        private string _contact_phone;
-        private string _contact_status;*/
         private Client _selected_client;
+        private Call _selected_call;
 
-        private ObservableCollection<Message> _myItems = new ObservableCollection<Message>();
+        private ObservableCollection<Message> _messages = new ObservableCollection<Message>();
+        private ObservableCollection<Call> _call_history = new ObservableCollection<Call>()
+        {
+            new Call() { Date = "12/12 11:23", Name = "Unknown", Number = "88005553535"}
+        };
         private ObservableCollection<Connection> _connections = new ObservableCollection<Connection>();
         private ObservableCollection<Client> _clients = new ObservableCollection<Client>()
         {
@@ -70,31 +71,12 @@ namespace AvaloniaCallCenter.ViewModels
             set => this.RaiseAndSetIfChanged(ref _title, value);
         }
 
+
         public string Message
         {
             get => _message;
             set => this.RaiseAndSetIfChanged(ref _message, value);
         }
-
-
-      /*  public string ContactName
-        {
-            get => _contact_name;
-            set => this.RaiseAndSetIfChanged(ref _contact_name, value);
-        }*/
-
-        /*public string ContactPhone
-        {
-            get => _contact_phone;
-            set => this.RaiseAndSetIfChanged(ref _contact_phone, value);
-        }*/
-
-
-      /*  public string ContactStatus
-        {
-            get => _contact_status;
-            set => this.RaiseAndSetIfChanged(ref _contact_status, value);
-        }*/
 
 
         public string AccountName
@@ -128,11 +110,17 @@ namespace AvaloniaCallCenter.ViewModels
             get => _selected_client;
             set => this.RaiseAndSetIfChanged(ref _selected_client, value);
         }
-
-        public ObservableCollection<Message> MyItems
+        
+        public Call SelectedCall
         {
-            get => _myItems;
-            set => this.RaiseAndSetIfChanged(ref _myItems, value);
+            get => _selected_call;
+            set => this.RaiseAndSetIfChanged(ref _selected_call, value);
+        }
+
+        public ObservableCollection<Message> Messages
+        {
+            get => _messages;
+            set => this.RaiseAndSetIfChanged(ref _messages, value);
         }
 
         public ObservableCollection<Connection> Connections
@@ -146,7 +134,25 @@ namespace AvaloniaCallCenter.ViewModels
             get => _clients;
             set => this.RaiseAndSetIfChanged(ref _clients, value);
         }
+
+        public ObservableCollection<Call> CallHistory
+        {
+            get => _call_history;
+            set => this.RaiseAndSetIfChanged(ref _call_history, value);
+        }
         #endregion
+
+        public async Task getData()
+        {
+            var user = await SignalRConnection.getUserAsync();
+
+            var clients = await SignalRConnection.getAllClientsAsync();
+            foreach (var client in clients)
+                Clients.Add(client);
+
+            AccountLogin = user.login;
+            AccountName = user.name;
+        }
 
 
         public HomeViewModel(IWindowContainer container, IScreen screen = null)
@@ -154,19 +160,11 @@ namespace AvaloniaCallCenter.ViewModels
             HostScreen = screen ?? Locator.Current.GetService<IScreen>();
 
             Container = container;
-            var user = SignalRConnection.getUser();
 
-            var clients = SignalRConnection.getAllClients();
-            foreach (var client in clients)
-                Clients.Add(client);
-            
-            AccountLogin = user.login;
-            AccountName = user.name;
-            
-            OnClickConnect = ReactiveCommand.Create(() =>
-            {
-                ConectionClick();
-            });
+            ConectionClick();
+
+
+      
 
             OnClickSendMessage = ReactiveCommand.Create(() =>
             {
@@ -195,6 +193,14 @@ namespace AvaloniaCallCenter.ViewModels
                 }
             });
 
+            OnClickSelectedCall = ReactiveCommand.Create(() =>
+            {
+                if(SelectedCall != null)
+                {
+                    connection.InvokeAsync("CallPhone", SelectedCall.Number);
+                }
+            });
+
             OnClickLogout = ReactiveCommand.Create(() =>
             {
                 if(container != null)
@@ -212,9 +218,11 @@ namespace AvaloniaCallCenter.ViewModels
                 }
                 catch (Exception ex)
                 {
-                    MyItems.Add(new Message { Title = ex.Message });
+                    Messages.Add(new Message { Title = ex.Message });
                 }
             });
+
+            getData();
         }
 
         #region MethodsClick
@@ -222,11 +230,11 @@ namespace AvaloniaCallCenter.ViewModels
         {
             try
             {
-                await connection.InvokeAsync("CallPhone", Message);
+                await connection.InvokeAsync("SendMessage", new Message() { Title = Message, Created = DateTime.Now});
             }
             catch (Exception ex)
             {
-                MyItems.Add(new Message { Title = ex.Message });
+                Messages.Add(new Message { Title = ex.Message });
             }
         }
 
@@ -234,11 +242,9 @@ namespace AvaloniaCallCenter.ViewModels
         {
             connection = SignalRConnection.GetConnection();
 
-            connection.On<string, string>("ReceiveMessage", (user, message) =>
+            connection.On<Message>("ReceiveMessage", (message) =>
             {
-                var newMessage = $"{user}: {message}";
-                MyItems.Add(new Message { Title = newMessage });
-
+                Messages.Add(message);
             });
 
             connection.On<List<Call>>("ReceiveAllCalls", (calls) =>
@@ -246,20 +252,25 @@ namespace AvaloniaCallCenter.ViewModels
                 foreach (var call in calls)
                 {
                     var item = $"Human: {call.Name}\n Number: {call.Number}";
-                    MyItems.Add(new Message { Title = item });
+                    Messages.Add(new Message { Title = item });
                 }
+            });
+
+            connection.On<Call>("ReceiveCallLog", (call) =>
+            {
+                CallHistory.Add(call);
             });
 
             connection.On<string>("ReceiveMeMessage", (message) =>
             {
                 var newMessage = $"{message}";
-                MyItems.Add(new Message { Title = message });
+                Messages.Add(new Message { Title = message });
 
             });
 
-            connection.On<Connection>("ReceiveConnected", (connection) =>
+            connection.On<string>("ReceiveConnected", (connection) =>
             {
-                Connections.Add(connection);
+                Connections.Add(new Connection { connectionID = connection});
             });
 
             connection.On<Connection>("ReceiveDisconnected", (connection) =>
@@ -274,11 +285,11 @@ namespace AvaloniaCallCenter.ViewModels
             try
             {
                 await connection.StartAsync();
-                MyItems.Add(new Message { Title = "Connection started" });
+                Messages.Add(new Message { Title = "Connection started" });
             }
             catch (Exception ex)
             {
-                MyItems.Add(new Message { Title = ex.Message });
+                Messages.Add(new Message { Title = ex.Message });
             }
         }
 
@@ -291,7 +302,7 @@ namespace AvaloniaCallCenter.ViewModels
             }
             catch (Exception ex)
             {
-                MyItems.Add(new Message { Title = ex.Message });
+                Messages.Add(new Message { Title = ex.Message });
             }
         }
 

@@ -84,6 +84,7 @@ namespace AvaloniaCallCenter.ViewModels
                 foreach(var item in _client.Events)
                 {
                     Events.Add(item);
+                    Events.Add(item);
                 }
             }
             
@@ -93,13 +94,14 @@ namespace AvaloniaCallCenter.ViewModels
             {
                 if(container != null)
                 {
-                    container.GoToHome();
+                    container.GoBack();
                 }
             });
 
-            OnClickSubmitClient = ReactiveCommand.Create(() =>
+            OnClickSubmitClient = ReactiveCommand.Create(async () =>
             {
-                if (_client == null) _client = new Client() { Events = new List<Event>()};
+                if (_client == null) 
+                    _client = new Client() { Events = new List<Event>()};
                 
 
                 _client.Name = Name;
@@ -119,29 +121,29 @@ namespace AvaloniaCallCenter.ViewModels
 
                 var result = false;
                 if (_client.Id == 0)
-                    result = SignalRConnection.addClient(_client);
+                    result = await SignalRConnection.addClientAsync(_client);
                 else
-                    result = SignalRConnection.updateClient(_client);
+                    result = await SignalRConnection.updateClientAsync(_client);
 
                 if (result)
                 {
-                    container.GoToHome();
+                    container.GoBack();
                 }
             });
 
-            OnClickDeleteClient = ReactiveCommand.Create(() =>
+            OnClickDeleteClient = ReactiveCommand.Create(async () =>
             {
                 if(_client != null)
                 {
-                    var result = SignalRConnection.deleteClient(_client.Id);
+                    var result = await SignalRConnection.deleteClientAsync(_client.Id);
                     if (result)
                     {
-                        container.GoToHome();
+                        container.GoBack();
                     }
                 }
             });
 
-            OnClickAddEvent = ReactiveCommand.Create(() =>
+            OnClickAddEvent = ReactiveCommand.Create(async () =>
             {
                 DateTime date = ((DateTimeOffset)SelectedEventDate).DateTime;
                 TimeSpan time = ((TimeSpan)SelectedEventTime);
@@ -156,16 +158,16 @@ namespace AvaloniaCallCenter.ViewModels
 
                 if (_client != null)
                 {
-                    SignalRConnection.addEvent(_client.Id, @event);
+                    await SignalRConnection.addEventAsync(_client.Id, @event);
                 }
             });
 
 
-            OnClickDeleteEvent = ReactiveCommand.Create(() =>
+            OnClickDeleteEvent = ReactiveCommand.Create(async () =>
             {
                 if (_client != null && SelectedEvent.Id != 0)
                 {
-                    var result = SignalRConnection.deleteEvent(_client.Id, SelectedEvent.Id);
+                    bool result = await SignalRConnection.deleteEventAsync(_client.Id, SelectedEvent.Id);
                     if (result)
                     {
                         Events.Remove(SelectedEvent);
