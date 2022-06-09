@@ -36,13 +36,13 @@
 				TextAlignment="Center"
 				Margin="0,10,0,0"
 				FontSize="24"
-				Text="About client"
+				Text="О клиенте"
 				Grid.Row="0"/>
 
 			<TextBlock
 				FontSize="12"
 				HorizontalAlignment="Left"
-				Text="Status"
+				Text="Статус"
 				Margin="5,0,0,0"
 				Grid.Row="1"/>
 
@@ -57,12 +57,12 @@
 			<TextBlock
 				FontSize="12"
 				HorizontalAlignment="Left"
-				Text="Name"
+				Text="Имя"
 				Margin="5,10,0,0"
 				Grid.Row="3"/>
 
 			<TextBox
-				Watermark="Name"
+				Watermark="Имя"
 				Text="{Binding Name}"
 				HorizontalAlignment="Stretch"
 				Grid.Row="4"/>
@@ -70,12 +70,12 @@
 			<TextBlock
 				FontSize="12"
 				HorizontalAlignment="Left"
-				Text="Email"
+				Text="Почта"
 				Margin="5,10,0,0"
 				Grid.Row="5"/>
 
 			<TextBox
-				Watermark="Email"
+				Watermark="Почта"
 				Text="{Binding Email}"
 				HorizontalAlignment="Stretch"
 				Grid.Row="6"/>
@@ -83,13 +83,13 @@
 			<TextBlock
 				FontSize="12"
 				HorizontalAlignment="Left"
-				Text="Phone"
+				Text="Телефон"
 				Margin="5,10,0,0"
 				Grid.Row="7"/>
 
 
 			<TextBox
-				Watermark="Phone"
+				Watermark="Телефон"
 				Text="{Binding Phone}"
 				HorizontalAlignment="Stretch"
 				Grid.Row="8"/>
@@ -98,12 +98,12 @@
 			<TextBlock
 				FontSize="12"
 				HorizontalAlignment="Left"
-				Text="City"
+				Text="Город"
 				Margin="5,10,0,0"
 				Grid.Row="9"/>
 
 			<TextBox
-				Watermark="City"
+				Watermark="Город"
 				Text="{Binding City}"
 				HorizontalAlignment="Stretch"
 				Grid.Row="10"/>
@@ -112,7 +112,7 @@
 			<TextBlock
 				FontSize="12"
 				HorizontalAlignment="Left"
-				Text="Date of birth"
+				Text="Дата рождения"
 				Margin="5,10,0,0"
 				Grid.Row="11"/>
 			
@@ -126,14 +126,14 @@
 			<TextBlock
 				FontSize="12"
 				HorizontalAlignment="Left"
-				Text="Description"
+				Text="Описание"
 				Margin="5,10,0,0"
 				Grid.Row="13"/>
 			
 			<TextBox
 				AcceptsReturn="True"
 				TextWrapping="Wrap"
-				Watermark="Description..."
+				Watermark="Описание..."
 				Text="{Binding Description}"
 				HorizontalAlignment="Stretch"
 				Grid.Row="14"/>
@@ -146,21 +146,21 @@
 				</Grid.ColumnDefinitions>
 
 				<Button 
-					Content="Back" 
+					Content="Назад" 
 					HorizontalAlignment="Stretch" 
 					HorizontalContentAlignment="Center"
 					Command="{Binding OnClickBack}"
 					Grid.Column="0"/>
 
 				<Button
-					Content="Submit"
+					Content="Принять"
 					HorizontalAlignment="Stretch"
 					HorizontalContentAlignment="Center"
 					Command="{Binding OnClickSubmitClient}"
 					Grid.Column="1"/>
 
 				<Button
-					Content="Delete"
+					Content="Удалить"
 					HorizontalAlignment="Stretch"
 					HorizontalContentAlignment="Center"
 					Command="{Binding OnClickDeleteClient}"
@@ -188,18 +188,18 @@
 				TextAlignment="Center"
 				Margin="0,10,0,0"
 				FontSize="24"
-				Text="Event"
+				Text="Событие"
 				Grid.Row="0"/>
 
 			<TextBlock
 				FontSize="12"
 				HorizontalAlignment="Left"
-				Text="Event title"
+				Text="Назнвание события"
 				Margin="5,10,0,0"
 				Grid.Row="1"/>
 
 			<TextBox
-				Watermark="Event title"
+				Watermark="Назнвание события"
 				Text="{Binding EventTitle}"
 				HorizontalAlignment="Stretch"
 				Grid.Row="2"/>
@@ -207,12 +207,12 @@
 			<TextBlock
 				FontSize="12"
 				HorizontalAlignment="Left"
-				Text="Event description"
+				Text="Опсиание события"
 				Margin="5,10,0,0"
 				Grid.Row="3"/>
 
 			<TextBox
-				Watermark="Event description"
+				Watermark="Опсиание события"
 				Text="{Binding EventDescription}"
 				VerticalAlignment="Stretch"
 				HorizontalAlignment="Stretch"
@@ -221,7 +221,7 @@
 			<TextBlock
 				FontSize="12"
 				HorizontalAlignment="Left"
-				Text="Event date"
+				Text="Дата события"
 				Margin="5,10,0,0"
 				Grid.Row="5"/>
 
@@ -234,7 +234,7 @@
 			<TextBlock
 				FontSize="12"
 				HorizontalAlignment="Left"
-				Text="Event time"
+				Text="Вреям события"
 				Margin="5,10,0,0"
 				Grid.Row="7"/>
 			
@@ -251,7 +251,7 @@
 				</Grid.ColumnDefinitions>
 
 				<Button
-					Content="Add"
+					Content="Добавить"
 					HorizontalAlignment="Stretch"
 					HorizontalContentAlignment="Center"
 					Command="{Binding OnClickAddEvent}"
@@ -259,12 +259,11 @@
 
 
 				<Button
-					Content="Delete"
+					Content="Удалить"
 					HorizontalAlignment="Stretch"
 					HorizontalContentAlignment="Center"
 					Command="{Binding OnClickDeleteEvent}"
 					Grid.Column="2"/>
-
 			</Grid>
 		</Grid>
 
@@ -274,7 +273,7 @@
 					TextAlignment="Center"
 					Margin="0,10,0,0"
 					FontSize="24"
-					Text="Events"/>
+					Text="События"/>
 
 			<ListBox Margin="10,50,10,10"
 						 SelectedItem="{Binding SelectedEvent}"

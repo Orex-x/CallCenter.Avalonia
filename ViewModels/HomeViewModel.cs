@@ -313,7 +313,7 @@ namespace AvaloniaCallCenter.ViewModels
                 {
                     foreach (var call in calls)
                     {
-                        var item = $"Human: {call.Name}\n Number: {call.Number}";
+                        var item = $"Клиент: {call.Name}\n Номер: {call.Number}";
                         Messages.Add(new Message { Title = item });
                     }
                 });
@@ -321,7 +321,7 @@ namespace AvaloniaCallCenter.ViewModels
                 connection.On<Call>("ReceiveCallLog", async (call) =>
                 {
                     MainWindowViewModel._user.countCalls++;
-                    CountCalls = "Звонков: " + MainUser.countCalls;
+                    CountCalls = "Звонкок: " + MainUser.countCalls;
                     await SignalRConnection.updateUserCountFieldsAsync(MainUser);
 
                     CallHistory.Add(call);
@@ -351,7 +351,7 @@ namespace AvaloniaCallCenter.ViewModels
                 try
                 {
                     await connection.StartAsync();
-                    Messages.Add(new Message { Title = "Connection started" });
+                    Messages.Add(new Message { Title = "Соединение установлено" });
                 }
                 catch (Exception ex)
                 {

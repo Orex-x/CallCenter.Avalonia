@@ -22,7 +22,7 @@ namespace AvaloniaCallCenter.ViewModels
         private string _password;
         private string _login;
         private string _message_log;
-        private string _title = "Authorization";
+        private string _title = "Авторизация";
 
         public IWindowContainer Container { get; private set; }
 

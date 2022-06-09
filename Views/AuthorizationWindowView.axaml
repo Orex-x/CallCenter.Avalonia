@@ -11,13 +11,13 @@
 				<TextBlock 
 					TextAlignment="Center" 
 					FontSize="24" 
-					Text="Authorization"/>
+					Text="Авторизация"/>
 				<TextBox 
-					Watermark="Login" 
+					Watermark="Логин" 
 					Text="{Binding Login}" 
 					Margin="0,10,0,0" 
 					Width="200"/>
-				<TextBox PasswordChar="*" Watermark="Password" Width="200" Text="{Binding Password}" Margin="0,10,0,0"/>
+				<TextBox PasswordChar="*" Watermark="Пароль" Width="200" Text="{Binding Password}" Margin="0,10,0,0"/>
 
 				<Grid>
 					<Grid.RowDefinitions>
@@ -26,14 +26,14 @@
 						<RowDefinition/>
 					</Grid.RowDefinitions>
 					<Button 
-						Content="Log in" 
+						Content="Войти" 
 						Grid.Row="0"
 						HorizontalAlignment="Stretch" 
 						HorizontalContentAlignment="Center"
 						Margin="0,5,0,0" 
 						Command="{Binding OnClickLogIn}"/>
 					<Button 
-						Content="Registration" 
+						Content="Регистрация" 
 						HorizontalAlignment="Stretch" 
 						HorizontalContentAlignment="Center"
 						Grid.Row="1" Margin="0,5,0,0"
