@@ -20,12 +20,28 @@
 				<TextBox PasswordChar="*" Watermark="Password" Width="200" Text="{Binding Password}" Margin="0,10,0,0"/>
 
 				<Grid>
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition Width="1*"/>
-						<ColumnDefinition Width="4*"/>
-					</Grid.ColumnDefinitions>
-					<Button Content="Log in" Grid.Column="0" HorizontalAlignment="Left"  Margin="10,5,0,0" Command="{Binding OnClickLogIn}"/>
-					<Button Content="Registration" Grid.Column="1" HorizontalAlignment="Right"  Margin="0,5,10,0" Command="{Binding OnClickGoToRegistration}"/>
+					<Grid.RowDefinitions>
+						<RowDefinition/>
+						<RowDefinition/>
+						<RowDefinition/>
+					</Grid.RowDefinitions>
+					<Button 
+						Content="Log in" 
+						Grid.Row="0"
+						HorizontalAlignment="Stretch" 
+						HorizontalContentAlignment="Center"
+						Margin="0,5,0,0" 
+						Command="{Binding OnClickLogIn}"/>
+					<Button 
+						Content="Registration" 
+						HorizontalAlignment="Stretch" 
+						HorizontalContentAlignment="Center"
+						Grid.Row="1" Margin="0,5,0,0"
+						Command="{Binding OnClickGoToRegistration}"/>
+					<TextBlock
+						Text="{Binding MessageLog}"
+						HorizontalAlignment="Center"
+						Grid.Row="2" Margin="0,5,0,0"/>
 				</Grid>
 				
 				

@@ -20,6 +20,8 @@ namespace AvaloniaCallCenter.ViewModels
 
         private Client _client;
 
+        private Status _buffer_status;
+
         #region ICommands
 
         public ICommand OnClickBack { get; private set; }
@@ -42,12 +44,7 @@ namespace AvaloniaCallCenter.ViewModels
         private Status _selected_status;
         private ObservableCollection<Status> _statuses = new ObservableCollection<Status>()
         {
-            Status.NEW,
-            Status.NO_ANSWER,
-            Status.NO_DATE,
-            Status.CONFIRMED,
-            Status.TRANSFERRED,
-            Status.BLOCKED
+            Status.NEW
         };
 
 
@@ -72,6 +69,7 @@ namespace AvaloniaCallCenter.ViewModels
 
             if(client != null)
             {
+
                 _client = client;
                 Name = client.Name;
                 Phone = client.Phone;
@@ -80,12 +78,18 @@ namespace AvaloniaCallCenter.ViewModels
                 Description = client.Description;
                 DateOfBirth = new DateTimeOffset(client.DateOfBirth);
                 SelectedStatus = client.Status;
+                _buffer_status = client.Status;
 
-                foreach(var item in _client.Events)
+                foreach (var item in _client.Events)
                 {
                     Events.Add(item);
-                    Events.Add(item);
                 }
+
+                Statuses.Add(Status.NO_ANSWER);
+                Statuses.Add(Status.NO_DATE);
+                Statuses.Add(Status.CONFIRMED);
+                Statuses.Add(Status.TRANSFERRED);
+                Statuses.Add(Status.BLOCKED);
             }
             
             #region OnClick
@@ -107,7 +111,7 @@ namespace AvaloniaCallCenter.ViewModels
                 _client.Name = Name;
                 _client.Phone = Phone;
                 _client.City = City;
-                _client.DateOfBirth = ((DateTimeOffset)DateOfBirth).DateTime;
+                _client.DateOfBirth = ((DateTimeOffset) DateOfBirth).DateTime;
                 _client.Description = Description;
                 _client.Email = Email;
                 _client.Status = SelectedStatus;
@@ -127,6 +131,18 @@ namespace AvaloniaCallCenter.ViewModels
 
                 if (result)
                 {
+                    if (_client.Id == 0)
+                        MainWindowViewModel._clients.Add(_client);
+
+                    if(_buffer_status != _client.Status)
+                    {
+                        if(client.Status == Status.BLOCKED)
+                            MainWindowViewModel._user.countBlocked++;
+                        if(client.Status == Status.TRANSFERRED)
+                            MainWindowViewModel._user.countTransferred++;
+
+                        await SignalRConnection.updateUserCountFieldsAsync(MainWindowViewModel._user);
+                    }
                     container.GoBack();
                 }
             });
@@ -138,6 +154,7 @@ namespace AvaloniaCallCenter.ViewModels
                     var result = await SignalRConnection.deleteClientAsync(_client.Id);
                     if (result)
                     {
+                        MainWindowViewModel._clients.Remove(_client);
                         container.GoBack();
                     }
                 }

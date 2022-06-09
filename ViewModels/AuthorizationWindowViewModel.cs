@@ -21,6 +21,7 @@ namespace AvaloniaCallCenter.ViewModels
         public ICommand OnClickGoToRegistration { get; private set; }
         private string _password;
         private string _login;
+        private string _message_log;
         private string _title = "Authorization";
 
         public IWindowContainer Container { get; private set; }
@@ -44,11 +45,14 @@ namespace AvaloniaCallCenter.ViewModels
             {
                 bool ok = await SignalRConnection.authServerAsync(Login, Password);
 
-                Title = ok ? "Login secuess" : "Login failed";
                 if (ok)
                 {
                     if(Container != null)
                         Container.GoToHome();
+                }
+                else
+                {
+                    MessageLog = "Неверные логин или пароль";
                 }
             }, canLogin);
 
@@ -76,6 +80,13 @@ namespace AvaloniaCallCenter.ViewModels
         {
             get => _password;
             set => this.RaiseAndSetIfChanged(ref _password, value);
+        }
+
+
+        public string MessageLog
+        {
+            get => _message_log;
+            set => this.RaiseAndSetIfChanged(ref _message_log, value);
         }
 
         public string Title

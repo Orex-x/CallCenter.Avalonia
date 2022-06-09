@@ -26,6 +26,8 @@ namespace AvaloniaCallCenter.ViewModels
         public void GoBack();
     }
 
+
+
    
 
     [DataContract]
@@ -33,6 +35,8 @@ namespace AvaloniaCallCenter.ViewModels
     {
         private RoutingState _router = new RoutingState();
 
+        public static ObservableCollection<Client> _clients = new ObservableCollection<Client>();
+        public static User _user;
 
         public MainWindowViewModel()
         {

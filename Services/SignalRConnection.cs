@@ -21,7 +21,7 @@ namespace AvaloniaCallCenter.Services
             public static string PUT = "PUT";
         }
 
-        private const string host = "https://2d80-62-217-190-128.ngrok.io";
+        private const string host = "https://a160-62-217-190-128.ngrok.io";
 
         private static HubConnection connection;
         private static string _token;
@@ -35,6 +35,7 @@ namespace AvaloniaCallCenter.Services
                .WithUrl($"{host}/ChatHub", options =>
                {
                    options.AccessTokenProvider = () => Task.FromResult(_token);
+                   options.Headers.Add("Hostname", Environment.MachineName);
                })
                .WithAutomaticReconnect()
                .Build();
@@ -190,6 +191,22 @@ namespace AvaloniaCallCenter.Services
             return false;
         }
 
+        public async static Task<bool> updateUserCountFieldsAsync(User user)
+        {
+            try
+            {
+                string json = JsonConvert.SerializeObject(user);
+                var response = await sendRequestAsync(json, $"{host}/api/data/UpdateUserCountFields",
+                    Method.POST);
+                return true;
+            }
+            catch (Exception ex)
+            {
+
+            }
+            return false;
+        }
+
 
         public async static Task<bool> deleteClientAsync(int idClient)
         {
@@ -303,6 +320,20 @@ namespace AvaloniaCallCenter.Services
                 _user = JsonConvert.DeserializeObject<User>(response);
             }
             return _user;
+        }
+
+        public async static Task<bool> UpdateUser(User user)
+        {
+            if (user != null)
+            {
+                string json = JsonConvert.SerializeObject(user);
+
+                var response = await sendRequestAsync(json, $"{host}/api/data/UpdateUser",
+                   Method.POST);
+                return JsonConvert.DeserializeObject<bool>(response);
+
+            }
+            return false;
         }
 
         public static void setUserAndConnectionNull()

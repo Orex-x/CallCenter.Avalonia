@@ -30,6 +30,9 @@ namespace AvaloniaCallCenter.ViewModels
         public ICommand OnClickClientDetails { get; private set; }
         public ICommand OnClickClientAdd { get; private set; }
         public ICommand OnClickSelectedCall { get; private set; }
+        public ICommand TerminateConnection { get; private set; }
+        public ICommand TerminateAllConnection { get; private set; }
+        public ICommand UpdateAccountUnfo { get; private set; }
 
         #endregion
 
@@ -50,6 +53,12 @@ namespace AvaloniaCallCenter.ViewModels
         private string _message;
         private Client _selected_client;
         private Call _selected_call;
+        private Connection _selected_seesion;
+        private User _user;
+
+        private string _count_calls;
+        private string _count_blocked;
+        private string _count_transferred;
 
         private ObservableCollection<Message> _messages = new ObservableCollection<Message>();
         private ObservableCollection<Call> _call_history = new ObservableCollection<Call>()
@@ -57,10 +66,7 @@ namespace AvaloniaCallCenter.ViewModels
             new Call() { Date = "12/12 11:23", Name = "Unknown", Number = "88005553535"}
         };
         private ObservableCollection<Connection> _connections = new ObservableCollection<Connection>();
-        private ObservableCollection<Client> _clients = new ObservableCollection<Client>()
-        {
-            new Client{ Name = "Олег", Phone = "88005557777(8)"}
-        };
+        
 
         #endregion
 
@@ -76,8 +82,31 @@ namespace AvaloniaCallCenter.ViewModels
         {
             get => _message;
             set => this.RaiseAndSetIfChanged(ref _message, value);
+        } 
+        
+        public string CountCalls
+        {
+            get => _count_calls;
+            set => this.RaiseAndSetIfChanged(ref _count_calls, value);
+        } 
+        
+        public string CountBlocked
+        {
+            get => _count_blocked;
+            set => this.RaiseAndSetIfChanged(ref _count_blocked, value);
+        }
+        public string CountTransferred
+        {
+            get => _count_transferred;
+            set => this.RaiseAndSetIfChanged(ref _count_transferred, value);
         }
 
+
+        public User MainUser
+        {
+            get => MainWindowViewModel._user;
+            set => this.RaiseAndSetIfChanged(ref MainWindowViewModel._user, value);
+        }
 
         public string AccountName
         {
@@ -116,6 +145,12 @@ namespace AvaloniaCallCenter.ViewModels
             get => _selected_call;
             set => this.RaiseAndSetIfChanged(ref _selected_call, value);
         }
+        
+        public Connection SelectedConnection
+        {
+            get => _selected_seesion;
+            set => this.RaiseAndSetIfChanged(ref _selected_seesion, value);
+        }
 
         public ObservableCollection<Message> Messages
         {
@@ -131,8 +166,8 @@ namespace AvaloniaCallCenter.ViewModels
 
         public ObservableCollection<Client> Clients
         {
-            get => _clients;
-            set => this.RaiseAndSetIfChanged(ref _clients, value);
+            get => MainWindowViewModel._clients;
+            set => this.RaiseAndSetIfChanged(ref MainWindowViewModel._clients, value);
         }
 
         public ObservableCollection<Call> CallHistory
@@ -142,16 +177,21 @@ namespace AvaloniaCallCenter.ViewModels
         }
         #endregion
 
+         
         public async Task getData()
         {
-            var user = await SignalRConnection.getUserAsync();
+            MainUser = await SignalRConnection.getUserAsync();
+
+            CountCalls = "Звонков: " + MainUser.countCalls;
+            CountBlocked = "Заблокировано: " + MainUser.countBlocked;
+            CountTransferred = "Отправлено: " + MainUser.countTransferred;
 
             var clients = await SignalRConnection.getAllClientsAsync();
+            MainWindowViewModel._clients.Clear();
             foreach (var client in clients)
-                Clients.Add(client);
+                MainWindowViewModel._clients.Add(client);
 
-            AccountLogin = user.login;
-            AccountName = user.name;
+            
         }
 
 
@@ -163,8 +203,13 @@ namespace AvaloniaCallCenter.ViewModels
 
             ConectionClick();
 
+            getData();
 
-      
+
+            UpdateAccountUnfo = ReactiveCommand.Create(async () =>
+            {
+                bool ok = await SignalRConnection.UpdateUser(MainUser);
+            });
 
             OnClickSendMessage = ReactiveCommand.Create(() =>
             {
@@ -201,16 +246,28 @@ namespace AvaloniaCallCenter.ViewModels
                 }
             });
 
-            OnClickLogout = ReactiveCommand.Create(() =>
+
+            TerminateConnection = ReactiveCommand.Create(() =>
             {
-                if(container != null)
+                if (SelectedConnection != null)
                 {
-                    SignalRConnection.setUserAndConnectionNull();
-                    container.GoToAuthorization();
+                    connection.InvokeAsync("TerminateConnection", SelectedConnection);
                 }
             });
 
-            OnClickCall = ReactiveCommand.Create(() =>
+
+            TerminateAllConnection = ReactiveCommand.Create(() =>
+            {
+                connection.InvokeAsync("TerminateAllConnection");
+            });
+
+
+            OnClickLogout = ReactiveCommand.Create(() =>
+            {
+                LogOut();
+            });
+
+            OnClickCall = ReactiveCommand.Create(async () =>
             {
                 try
                 {
@@ -221,8 +278,6 @@ namespace AvaloniaCallCenter.ViewModels
                     Messages.Add(new Message { Title = ex.Message });
                 }
             });
-
-            getData();
         }
 
         #region MethodsClick
@@ -240,56 +295,68 @@ namespace AvaloniaCallCenter.ViewModels
 
         private async void ConectionClick()
         {
-            connection = SignalRConnection.GetConnection();
-
-            connection.On<Message>("ReceiveMessage", (message) =>
+            if(connection == null)
             {
-                Messages.Add(message);
-            });
+                connection = SignalRConnection.GetConnection();
 
-            connection.On<List<Call>>("ReceiveAllCalls", (calls) =>
-            {
-                foreach (var call in calls)
+                connection.On<Message>("ReceiveMessage", (message) =>
                 {
-                    var item = $"Human: {call.Name}\n Number: {call.Number}";
-                    Messages.Add(new Message { Title = item });
-                }
-            });
+                    Messages.Add(message);
+                });
 
-            connection.On<Call>("ReceiveCallLog", (call) =>
-            {
-                CallHistory.Add(call);
-            });
-
-            connection.On<string>("ReceiveMeMessage", (message) =>
-            {
-                var newMessage = $"{message}";
-                Messages.Add(new Message { Title = message });
-
-            });
-
-            connection.On<string>("ReceiveConnected", (connection) =>
-            {
-                Connections.Add(new Connection { connectionID = connection});
-            });
-
-            connection.On<Connection>("ReceiveDisconnected", (connection) =>
-            {
-                foreach (var item in Connections)
+                connection.On("ReceiveTerminateConnection", () =>
                 {
-                    if (item.connectionID == connection.connectionID)
-                        Connections.Remove(item);
-                }
-            });
+                    LogOut();
+                });
 
-            try
-            {
-                await connection.StartAsync();
-                Messages.Add(new Message { Title = "Connection started" });
-            }
-            catch (Exception ex)
-            {
-                Messages.Add(new Message { Title = ex.Message });
+                connection.On<List<Call>>("ReceiveAllCalls", (calls) =>
+                {
+                    foreach (var call in calls)
+                    {
+                        var item = $"Human: {call.Name}\n Number: {call.Number}";
+                        Messages.Add(new Message { Title = item });
+                    }
+                });
+
+                connection.On<Call>("ReceiveCallLog", async (call) =>
+                {
+                    MainWindowViewModel._user.countCalls++;
+                    CountCalls = "Звонков: " + MainUser.countCalls;
+                    await SignalRConnection.updateUserCountFieldsAsync(MainUser);
+
+                    CallHistory.Add(call);
+                });
+
+                connection.On<string>("ReceiveMeMessage", (message) =>
+                {
+                    var newMessage = $"{message}";
+                    Messages.Add(new Message { Title = message });
+
+                });
+
+                connection.On<Connection>("ReceiveConnected", (connection) =>
+                {
+                    Connections.Add(connection);
+                });
+
+                connection.On<Connection>("ReceiveDisconnected", (connection) =>
+                {
+                    foreach (var item in Connections)
+                    {
+                        if (item.connectionID == connection.connectionID)
+                            Connections.Remove(item);
+                    }
+                });
+
+                try
+                {
+                    await connection.StartAsync();
+                    Messages.Add(new Message { Title = "Connection started" });
+                }
+                catch (Exception ex)
+                {
+                    Messages.Add(new Message { Title = ex.Message });
+                }
             }
         }
 
@@ -306,6 +373,15 @@ namespace AvaloniaCallCenter.ViewModels
             }
         }
 
+
+        public void LogOut()
+        {
+            if (Container != null)
+            {
+                SignalRConnection.setUserAndConnectionNull();
+                Container.GoToAuthorization();
+            }
+        }
         #endregion
 
         public string? UrlPathSegment => "/home";

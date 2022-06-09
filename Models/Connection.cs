@@ -13,5 +13,7 @@ namespace AvaloniaCallCenter.Models
     {
         public int Id { get; set; }
         public string connectionID { get; set; }
+
+        public string hostName { get; set; }
     }
 }

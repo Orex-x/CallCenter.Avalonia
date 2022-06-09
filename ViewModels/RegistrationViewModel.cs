@@ -80,10 +80,12 @@ namespace AvaloniaCallCenter.ViewModels
                 {
                     login = Login,
                     password = Password,
-                    name = Name
+                    name = Name,
+                    lastname = Lastname,
+                    surname = Surname
                 };
 
-                bool ok = await SignalRConnection.sendRegistrationAsync(user);
+                bool ok = await SignalRConnection.sendRegistrationAsync (user);
                 if (ok)
                 {
                     if (container != null)
