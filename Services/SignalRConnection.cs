@@ -21,7 +21,7 @@ namespace AvaloniaCallCenter.Services
             public static string PUT = "PUT";
         }
 
-        private const string host = "https://a160-62-217-190-128.ngrok.io";
+        private const string host = "https://fcce-62-217-190-128.ngrok.io";
 
         private static HubConnection connection;
         private static string _token;
